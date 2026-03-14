@@ -1,0 +1,205 @@
+from __future__ import annotations
+
+import argparse
+import math
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Tuple
+
+import numpy as np
+from PIL import Image
+from tqdm import tqdm
+
+from _common import ensure_dir, list_images, match_pairs
+
+
+@dataclass
+class HeatmapConfig:
+    tile: int = 64
+    stride: int = 32
+    beta: float = 0.5
+    eps: float = 1e-6
+    q_power: float = 1.0  # frequency weighting power
+
+
+def read_rgb(path: Path) -> np.ndarray:
+    img = Image.open(path).convert("RGB")
+    return np.asarray(img).astype(np.float32) / 255.0
+
+
+def hann2d(h: int, w: int) -> np.ndarray:
+    wy = np.hanning(h)
+    wx = np.hanning(w)
+    return np.outer(wy, wx).astype(np.float32)
+
+
+def radial_weight(h: int, w: int, power: float = 1.0) -> np.ndarray:
+    # Normalized radial frequency weight in [0,1]
+    fy = np.fft.fftfreq(h)[:, None]
+    fx = np.fft.fftfreq(w)[None, :]
+    r = np.sqrt(fx * fx + fy * fy)
+    r = np.fft.fftshift(r)
+    r = r / (r.max() + 1e-12)
+    return (r ** power).astype(np.float32)
+
+
+def tiled_spectral_heatmap(obs: np.ndarray, pred: np.ndarray, cfg: HeatmapConfig) -> np.ndarray:
+    packet_mode = getattr(cfg, 'packet_mode', 'coherent')
+    # obs/pred: [H,W,3] in [0,1]
+    assert obs.shape == pred.shape, f"shape mismatch: obs {obs.shape} vs pred {pred.shape}"
+    H, W, _ = obs.shape
+
+    # luminance for stability
+    obs_g = 0.2989 * obs[..., 0] + 0.5870 * obs[..., 1] + 0.1140 * obs[..., 2]
+    pred_g = 0.2989 * pred[..., 0] + 0.5870 * pred[..., 1] + 0.1140 * pred[..., 2]
+
+    tile = cfg.tile
+    stride = cfg.stride
+    win = hann2d(tile, tile)
+    q = radial_weight(tile, tile, cfg.q_power)
+
+    acc = np.zeros((H, W), dtype=np.float32)
+    acc_c = np.zeros_like(acc, dtype=np.complex64)
+    wacc = np.zeros((H, W), dtype=np.float32)
+
+    # tile loop
+    for y in range(0, max(1, H - tile + 1), stride):
+        for x in range(0, max(1, W - tile + 1), stride):
+            o = obs_g[y:y+tile, x:x+tile]
+            p = pred_g[y:y+tile, x:x+tile]
+            if o.shape != (tile, tile) or p.shape != (tile, tile):
+                continue
+
+            o = o * win
+            p = p * win
+
+            Fo = np.fft.fft2(o)
+            Fp = np.fft.fft2(p)
+
+            # amplitude residual (log-magnitude)
+            Ao = np.log(np.abs(Fo) + cfg.eps)
+            Ap = np.log(np.abs(Fp) + cfg.eps)
+            amp = np.abs(Ap - Ao)
+
+            # phase coherence term
+            denom = (np.abs(Fp) + cfg.eps) * (np.abs(Fo) + cfg.eps)
+            pkt_z = ((Fp * np.conj(Fo)) / denom)
+            coh = np.real((Fp * np.conj(Fo)) / denom)
+            pkt_scalar = np.abs(pkt_z).astype(np.float32)
+            phase = 1.0 - coh
+
+            if packet_mode == 'scalar':
+                acc[y:y+tile, x:x+tile] += pkt_scalar
+            else:
+                acc_c[y:y+tile, x:x+tile] += pkt_z
+            # [auto-fix] define R if missing (magnitude spectrum of grayscale residual tile)
+            if 'R' not in locals():
+                _patch = obs[y:y+tile, x:x+tile] - pred[y:y+tile, x:x+tile]
+                if _patch.ndim == 3:
+                    _patch = _patch.mean(axis=2)
+                R = np.abs(np.fft.fft2(_patch)).astype(np.float32)
+            e = float(np.sum(q * R))
+
+            if getattr(cfg, 'packet_mode', 'coherent') == 'scalar':
+                # scalar packets baseline: NO inter-packet interference
+                acc[y:y+tile, x:x+tile] += np.abs(e)
+            else:
+                # coherent packets: complex interference (original)
+                acc[y:y+tile, x:x+tile] += (e)
+            wacc[y:y+tile, x:x+tile] += 1.0
+
+    hm = acc / (wacc + 1e-12)
+
+    # IMPORTANT: keep absolute scale across frames (NO per-frame normalization)
+    if packet_mode == 'coherent':
+        acc = np.abs(acc_c).astype(np.float32)
+    # If you need visualization, normalize only when plotting overlays, not for scoring.
+    return hm.astype(np.float32)
+
+def scalar_heatmap_from_residual(res2d: np.ndarray, tile: int, stride: int) -> np.ndarray:
+    """
+    res2d: HxW scalar residual (mean abs diff)
+    returns: HxW heatmap aggregated from overlapping tiles (NO per-frame normalization)
+    """
+    H, W = res2d.shape
+    ii = np.pad(res2d, ((1, 0), (1, 0)), mode="constant").cumsum(0).cumsum(1)
+
+    diff = np.zeros((H + 1, W + 1), dtype=np.float32)
+    cnt  = np.zeros((H + 1, W + 1), dtype=np.float32)
+
+    for y in range(0, H - tile + 1, stride):
+        y2 = y + tile
+        for x in range(0, W - tile + 1, stride):
+            x2 = x + tile
+            s = ii[y2, x2] - ii[y, x2] - ii[y2, x] + ii[y, x]
+
+            diff[y,  x ] += s
+            diff[y2, x ] -= s
+            diff[y,  x2] -= s
+            diff[y2, x2] += s
+
+            cnt[y,  x ] += 1
+            cnt[y2, x ] -= 1
+            cnt[y,  x2] -= 1
+            cnt[y2, x2] += 1
+
+    hm = diff.cumsum(0).cumsum(1)[:H, :W]
+    c  = cnt.cumsum(0).cumsum(1)[:H, :W]
+    hm = hm / np.maximum(c, 1.0)
+    return hm.astype(np.float32)
+
+def scalar_heatmap_from_images(obs: np.ndarray, pred: np.ndarray, tile: int, stride: int) -> np.ndarray:
+    # obs/pred: float32 in [0,1], HxWx3
+    res = np.mean(np.abs(obs - pred), axis=2).astype(np.float32)
+    return scalar_heatmap_from_residual(res, tile=tile, stride=stride)
+
+
+
+def main():
+    ap = argparse.ArgumentParser()
+
+    ap.add_argument('--residual_mode', choices=['complex','scalar'], default='complex', help='complex=original spectral heatmap; scalar=mean|obs-pred| aggregated by tiles')
+
+    ap.add_argument('--packet_mode', choices=['coherent','scalar'], default='coherent', help='coherent=complex interference, scalar=accumulate |packet| (no interference)')
+    ap.add_argument("--pred_dir", type=str, required=True)
+    ap.add_argument("--obs_dir", type=str, required=True)
+    ap.add_argument("--out_dir", type=str, required=True)
+    ap.add_argument("--tile", type=int, default=64)
+    ap.add_argument("--stride", type=int, default=32)
+    ap.add_argument("--beta", type=float, default=0.5)
+    ap.add_argument("--q_power", type=float, default=1.0)
+    args = ap.parse_args()
+
+    pred_dir = Path(args.pred_dir)
+    obs_dir = Path(args.obs_dir)
+    out_dir = Path(args.out_dir)
+    ensure_dir(out_dir)
+
+    pred_imgs = list_images(pred_dir)
+    obs_imgs = list_images(obs_dir)
+    pairs = match_pairs(pred_imgs, obs_imgs)
+    if not pairs:
+        raise SystemExit("No matched pred/obs pairs found. Check filenames.")
+
+    cfg = HeatmapConfig(tile=args.tile, stride=args.stride, beta=args.beta, q_power=args.q_power)
+
+    for pred_path, obs_path in tqdm(pairs, desc="heatmaps"):
+        pred = read_rgb(pred_path)
+        obs = read_rgb(obs_path)
+        # expose CLI packet_mode to cfg
+        try:
+            cfg.packet_mode = args.packet_mode
+        except Exception:
+            try:
+                cfg['packet_mode'] = args.packet_mode
+            except Exception:
+                pass
+        if args.residual_mode == 'scalar':
+            hm = scalar_heatmap_from_images(obs=obs, pred=pred, tile=args.tile, stride=args.stride)
+        else:
+            hm = tiled_spectral_heatmap(obs=obs, pred=pred, cfg=cfg)
+        np.save(out_dir / f"{pred_path.stem}.npy", hm)
+
+
+if __name__ == "__main__":
+    main()

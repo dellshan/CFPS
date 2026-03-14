@@ -1,0 +1,302 @@
+[
+  {
+    "frame": 0,
+    "render": "renders/000000.png",
+    "heatmap": "heatmaps/000000.npy"
+  },
+  {
+    "frame": 1,
+    "render": "renders/000001.png",
+    "heatmap": "heatmaps/000001.npy"
+  },
+  {
+    "frame": 2,
+    "render": "renders/000002.png",
+    "heatmap": "heatmaps/000002.npy"
+  },
+  {
+    "frame": 3,
+    "render": "renders/000003.png",
+    "heatmap": "heatmaps/000003.npy"
+  },
+  {
+    "frame": 4,
+    "render": "renders/000004.png",
+    "heatmap": "heatmaps/000004.npy"
+  },
+  {
+    "frame": 5,
+    "render": "renders/000005.png",
+    "heatmap": "heatmaps/000005.npy"
+  },
+  {
+    "frame": 6,
+    "render": "renders/000006.png",
+    "heatmap": "heatmaps/000006.npy"
+  },
+  {
+    "frame": 7,
+    "render": "renders/000007.png",
+    "heatmap": "heatmaps/000007.npy"
+  },
+  {
+    "frame": 8,
+    "render": "renders/000008.png",
+    "heatmap": "heatmaps/000008.npy"
+  },
+  {
+    "frame": 9,
+    "render": "renders/000009.png",
+    "heatmap": "heatmaps/000009.npy"
+  },
+  {
+    "frame": 10,
+    "render": "renders/000010.png",
+    "heatmap": "heatmaps/000010.npy"
+  },
+  {
+    "frame": 11,
+    "render": "renders/000011.png",
+    "heatmap": "heatmaps/000011.npy"
+  },
+  {
+    "frame": 12,
+    "render": "renders/000012.png",
+    "heatmap": "heatmaps/000012.npy"
+  },
+  {
+    "frame": 13,
+    "render": "renders/000013.png",
+    "heatmap": "heatmaps/000013.npy"
+  },
+  {
+    "frame": 14,
+    "render": "renders/000014.png",
+    "heatmap": "heatmaps/000014.npy"
+  },
+  {
+    "frame": 15,
+    "render": "renders/000015.png",
+    "heatmap": "heatmaps/000015.npy"
+  },
+  {
+    "frame": 16,
+    "render": "renders/000016.png",
+    "heatmap": "heatmaps/000016.npy"
+  },
+  {
+    "frame": 17,
+    "render": "renders/000017.png",
+    "heatmap": "heatmaps/000017.npy"
+  },
+  {
+    "frame": 18,
+    "render": "renders/000018.png",
+    "heatmap": "heatmaps/000018.npy"
+  },
+  {
+    "frame": 19,
+    "render": "renders/000019.png",
+    "heatmap": "heatmaps/000019.npy"
+  },
+  {
+    "frame": 20,
+    "render": "renders/000020.png",
+    "heatmap": "heatmaps/000020.npy"
+  },
+  {
+    "frame": 21,
+    "render": "renders/000021.png",
+    "heatmap": "heatmaps/000021.npy"
+  },
+  {
+    "frame": 22,
+    "render": "renders/000022.png",
+    "heatmap": "heatmaps/000022.npy"
+  },
+  {
+    "frame": 23,
+    "render": "renders/000023.png",
+    "heatmap": "heatmaps/000023.npy"
+  },
+  {
+    "frame": 24,
+    "render": "renders/000024.png",
+    "heatmap": "heatmaps/000024.npy"
+  },
+  {
+    "frame": 25,
+    "render": "renders/000025.png",
+    "heatmap": "heatmaps/000025.npy"
+  },
+  {
+    "frame": 26,
+    "render": "renders/000026.png",
+    "heatmap": "heatmaps/000026.npy"
+  },
+  {
+    "frame": 27,
+    "render": "renders/000027.png",
+    "heatmap": "heatmaps/000027.npy"
+  },
+  {
+    "frame": 28,
+    "render": "renders/000028.png",
+    "heatmap": "heatmaps/000028.npy"
+  },
+  {
+    "frame": 29,
+    "render": "renders/000029.png",
+    "heatmap": "heatmaps/000029.npy"
+  },
+  {
+    "frame": 30,
+    "render": "renders/000030.png",
+    "heatmap": "heatmaps/000030.npy"
+  },
+  {
+    "frame": 31,
+    "render": "renders/000031.png",
+    "heatmap": "heatmaps/000031.npy"
+  },
+  {
+    "frame": 32,
+    "render": "renders/000032.png",
+    "heatmap": "heatmaps/000032.npy"
+  },
+  {
+    "frame": 33,
+    "render": "renders/000033.png",
+    "heatmap": "heatmaps/000033.npy"
+  },
+  {
+    "frame": 34,
+    "render": "renders/000034.png",
+    "heatmap": "heatmaps/000034.npy"
+  },
+  {
+    "frame": 35,
+    "render": "renders/000035.png",
+    "heatmap": "heatmaps/000035.npy"
+  },
+  {
+    "frame": 36,
+    "render": "renders/000036.png",
+    "heatmap": "heatmaps/000036.npy"
+  },
+  {
+    "frame": 37,
+    "render": "renders/000037.png",
+    "heatmap": "heatmaps/000037.npy"
+  },
+  {
+    "frame": 38,
+    "render": "renders/000038.png",
+    "heatmap": "heatmaps/000038.npy"
+  },
+  {
+    "frame": 39,
+    "render": "renders/000039.png",
+    "heatmap": "heatmaps/000039.npy"
+  },
+  {
+    "frame": 40,
+    "render": "renders/000040.png",
+    "heatmap": "heatmaps/000040.npy"
+  },
+  {
+    "frame": 41,
+    "render": "renders/000041.png",
+    "heatmap": "heatmaps/000041.npy"
+  },
+  {
+    "frame": 42,
+    "render": "renders/000042.png",
+    "heatmap": "heatmaps/000042.npy"
+  },
+  {
+    "frame": 43,
+    "render": "renders/000043.png",
+    "heatmap": "heatmaps/000043.npy"
+  },
+  {
+    "frame": 44,
+    "render": "renders/000044.png",
+    "heatmap": "heatmaps/000044.npy"
+  },
+  {
+    "frame": 45,
+    "render": "renders/000045.png",
+    "heatmap": "heatmaps/000045.npy"
+  },
+  {
+    "frame": 46,
+    "render": "renders/000046.png",
+    "heatmap": "heatmaps/000046.npy"
+  },
+  {
+    "frame": 47,
+    "render": "renders/000047.png",
+    "heatmap": "heatmaps/000047.npy"
+  },
+  {
+    "frame": 48,
+    "render": "renders/000048.png",
+    "heatmap": "heatmaps/000048.npy"
+  },
+  {
+    "frame": 49,
+    "render": "renders/000049.png",
+    "heatmap": "heatmaps/000049.npy"
+  },
+  {
+    "frame": 50,
+    "render": "renders/000050.png",
+    "heatmap": "heatmaps/000050.npy"
+  },
+  {
+    "frame": 51,
+    "render": "renders/000051.png",
+    "heatmap": "heatmaps/000051.npy"
+  },
+  {
+    "frame": 52,
+    "render": "renders/000052.png",
+    "heatmap": "heatmaps/000052.npy"
+  },
+  {
+    "frame": 53,
+    "render": "renders/000053.png",
+    "heatmap": "heatmaps/000053.npy"
+  },
+  {
+    "frame": 54,
+    "render": "renders/000054.png",
+    "heatmap": "heatmaps/000054.npy"
+  },
+  {
+    "frame": 55,
+    "render": "renders/000055.png",
+    "heatmap": "heatmaps/000055.npy"
+  },
+  {
+    "frame": 56,
+    "render": "renders/000056.png",
+    "heatmap": "heatmaps/000056.npy"
+  },
+  {
+    "frame": 57,
+    "render": "renders/000057.png",
+    "heatmap": "heatmaps/000057.npy"
+  },
+  {
+    "frame": 58,
+    "render": "renders/000058.png",
+    "heatmap": "heatmaps/000058.npy"
+  },
+  {
+    "frame": 59,
+    "render": "renders/000059.png",
+    "heatmap": "heatmaps/000059.npy"
+  }
+]

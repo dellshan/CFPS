@@ -1,0 +1,12 @@
+# Minimal, iHPC-friendly
+numpy>=1.23
+pillow>=10.0
+matplotlib>=3.7
+scipy>=1.10
+tqdm>=4.66
+
+# Optional (for stronger temporal metric)
+# If you don't want GPU or PyTorch, run with --instability absdiff
+torch>=2.1
+torchvision>=0.16
+lpips>=0.1.4
