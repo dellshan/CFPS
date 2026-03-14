@@ -1,0 +1,10 @@
+*.tar.gz
+*.zip
+*.pkl
+data/
+outputs/
+logs/
+results/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
